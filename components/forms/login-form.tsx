@@ -2,20 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox"; // Import Checkbox component
 import { loginSchema } from "@/schemas/login-schema";
 import { useState } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
@@ -23,9 +22,13 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { useAuth } from "@/hooks/use-auth";
+import { useAuthStore } from "@/store/auth-store";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -33,22 +36,22 @@ export function LoginForm() {
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false, // Default value for rememberMe
     },
   });
-
+  const { login, isLoading, error } = useAuth();
+  const router = useRouter();
   const [isvisible, setVisible] = useState(false);
   const togglePasswordVisibility = () => {
     setVisible(!isvisible);
   };
 
-  function onSubmit(data: z.infer<typeof loginSchema>) {
-    toast("You submitted the following values", {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+  async function  onSubmit(data: z.infer<typeof loginSchema>) {
+    await login(data.email, data.password, data.rememberMe);
+    const role = useAuthStore.getState().user?.role;
+    if (role === "admin") router.push("/admin-dashboard");
+    else if (role === "super-admin") router.push("/super-admin");
+    else router.push("/dashboard");
   }
 
   return (
@@ -104,19 +107,38 @@ export function LoginForm() {
                       </button>
                     </div>
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="rememberMe"
+              render={({ field }) => (
+                <FormItem className="flex items-center space-x-2">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormLabel className="text-sm font-medium">
+                    Remember Me
+                  </FormLabel>
+                </FormItem>
+              )}
+            />
             <div className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full">
-                Sign In
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
             </div>
           </form>
         </Form>
       </CardContent>
+      <CardFooter className="text-center">
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+      </CardFooter>
     </Card>
   );
 }

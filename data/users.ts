@@ -1,14 +1,57 @@
-import { User } from "@/types/user";
 
-export const mockUsers: User[] = [
+export const mockUsers = [
   {
     id: 1,
-    username: "john_doe",
-    email: "john@example.com",
+    username: "User-00",
+    email: "user0@normal.com",
     role: "user",
     isActive: true,
     walletBalance: 2500.0,
     transactions: [],
+    password: "password",
+  },
+  {
+    id: 2,
+    username: "User-01",
+    email: "user1@normal.com",
+    role: "user",
+    isActive: true,
+    walletBalance: 2500.0,
+    transactions: [],
+    password: "password",
+  },
+  {
+    id: 3,
+    username: "User-02",
+    email: "user2@normal.com",
+    role: "user",
+    isActive: true,
+    walletBalance: 2500.0,
+    transactions: [],
+    password: "password",
+  },
+  {
+    id: 4,
+    username: "Admin-01",
+    email: "user1@admin.com",
+    role: "admin",
+    isActive: true,
+    password: "password",
+  },
+  {
+    id: 5,
+    username: "Admin-02",
+    email: "user2@admin.com",
+    role: "admin",
+    isActive: true,
+    password: "password",
+  },
+  {
+    id: 6,
+    username: "Super Admin",
+    email: "user1@super.com",
+    role: "super-admin",
+    isActive: true,
     password: "password",
   },
 ];

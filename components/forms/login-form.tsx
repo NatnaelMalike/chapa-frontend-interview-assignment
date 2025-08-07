@@ -47,11 +47,13 @@ export function LoginForm() {
   };
 
   async function  onSubmit(data: z.infer<typeof loginSchema>) {
-    await login(data.email, data.password, data.rememberMe);
-    const role = useAuthStore.getState().user?.role;
-    if (role === "admin") router.push("/admin-dashboard");
-    else if (role === "super-admin") router.push("/super-admin");
-    else router.push("/dashboard");
+    const user = await login(data.email, data.password, data.rememberMe);
+    if (user) { // Check if a user object was returned
+      const role = user.role;
+      if (role === "admin") router.push("/admin-dashboard");
+      else if (role === "super-admin") router.push("/super-admin");
+      else router.push("/dashboard");
+    }
   }
 
   return (

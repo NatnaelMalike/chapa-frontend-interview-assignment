@@ -11,7 +11,7 @@ const api = axios.create({
 const authApi = {
   login: (email: string, password: string, rememberMe: boolean) =>
     api.post('/login', { email, password, rememberMe }),
-  
+
   logout: () => api.post('/logout'),
   
   getMe: () => api.get('/me'),
@@ -27,14 +27,16 @@ export function useAuth() {
     setError(null);
     try {
       const { data } = await authApi.login(email, password, rememberMe);
-      setUser(data.user);
+      setUser(data);
+      console.log('Login successful:', data);
+      return data;
     } catch (err) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || 'Login failed');
       } else {
         setError('Login failed, please try again!');
       }
-      throw err;
+    return null;
     } finally {
       setLoading(false);
     }

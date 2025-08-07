@@ -1,37 +1,20 @@
 interface Customer {
-    id: number;
-    email: string;
-    first_name: string;
-    last_name: string;
-    mobile: string;
-  }
-  
-  export interface Transaction {
-    status: string;
-    ref_id: string;
-    type: string;
-    created_at: Date;
-    currency: string;
-    amount: string;
-    charge: string;
-    trans_id: string;
-    payment_method: string;
-    customer: Customer;
-  }
-  
-  interface Pagination {
-    per_page: number;
-    current_page: number;
-    first_page_url: string;
-    next_page_url: string;
-    prev_page_url: string;
-  }
-  
-  interface GetTransactionsResponse {
-    message: string;
-    status: string;
-    data: {
-      transactions: Transaction[];
-      pagination: Pagination;
-    };
-  }
+  id: number;
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  mobile: string | null;
+}
+
+interface Transaction {
+  status: "success" | "pending" | "failed";
+  ref_id: string;
+  type: string;
+  created_at: string;
+  currency: string;
+  amount: string;
+  charge: string;
+  trans_id: string | null;
+  payment_method: string;
+  customer: Customer;
+}

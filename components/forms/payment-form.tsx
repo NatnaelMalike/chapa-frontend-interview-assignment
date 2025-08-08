@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -38,9 +39,16 @@ export function PaymentForm() {
     },
   });
 
+  // Handle successful payment initialization
+  useEffect(() => {
+    if (response && response.data && response.data.checkout_url) {
+      window.location.href = response.data.checkout_url;
+    }
+  }, [response]);
+
   async function onSubmit(data: PaymentFormData) {
     const callbackUrl =
-    process.env.CALLBACK_URL || "https://chapa-frontend-mk.vercel.app/api/chapa/callback";
+      process.env.CALLBACK_URL || "https://chapa-frontend-mk.vercel.app/api/chapa/callback";
     const returnUrl = process.env.RETURN_URL || "https://chapa-frontend-mk.vercel.app/thank-you";
 
     const paymentData = {
@@ -51,10 +59,11 @@ export function PaymentForm() {
       currency: "ETB",
       amount: data.amount.toString(), // Fixed at 100
     };
-    execute(paymentData);
-    // Handle the response data if needed
-    if (response && response.data) {
-        window.location.href = response.data.checkout_url;
+
+    try {
+      await execute(paymentData);
+    } catch (error) {
+      console.error('Payment initialization failed:', error);
     }
   }
 

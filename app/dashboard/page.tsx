@@ -1,11 +1,14 @@
 "use client";
 
-import { RoleGuard } from "@/components/role-guard";
 import { useAuthStore } from "@/store/auth-store";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, LogOut } from "lucide-react";
+import { Wallet, Receipt } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { transactions } from "@/data/transactions";
+import { RoleGuard } from "@/components/role-guard";
+import { PaymentForm } from "@/components/forms/payment-form";
+import { TransactionHistory } from "@/components/transaction-history";
+import { DashboardSidebar } from "@/components/dashboard-sidebar";
 
 export default function UserDashboard() {
   const { user, logout } = useAuthStore();
@@ -16,84 +19,79 @@ export default function UserDashboard() {
     router.replace("/");
   };
 
+  // Get user's transactions for stats
+  const userTransactions = transactions.filter(
+    (transaction) => transaction.customer.email === user?.email
+  );
+
+  // Calculate total transactions
+  const totalTransactions = userTransactions.length;
+  const successfulTransactions = userTransactions.filter(
+    (t) => t.status === "success"
+  );
+  const totalAmount = successfulTransactions.reduce(
+    (sum, t) => sum + parseFloat(t.amount),
+    0
+  );
+
   return (
     <RoleGuard allowedRole="user">
-      <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <User className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  User Dashboard
-                </h1>
-                <p className="text-muted-foreground">
-                  Welcome back, {user?.username}!
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="flex items-center gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </Button>
-          </div>
+      <div className="min-h-screen bg-background">
+        {/* Sidebar */}
+        <DashboardSidebar user={user} onLogout={handleLogout} />
 
-          {/* User Info Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Profile</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Username
-                  </label>
-                  <p className="text-foreground">{user?.username}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Email
-                  </label>
-                  <p className="text-foreground">{user?.email}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Role
-                  </label>
-                  <p className="text-foreground capitalize">{user?.role}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Status
-                  </label>
-                  <p className="text-foreground">
-                    {user?.isActive ? "Active" : "Inactive"}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Features Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>User Features</CardTitle>
-            </CardHeader>
-            <CardContent>
+        {/* Main Content */}
+        <div className="lg:pl-80">
+          <div className="p-4 sm:p-6 lg:p-8 pt-16 lg:pt-8">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
               <p className="text-muted-foreground">
-                This is the user dashboard. Only users with the "user" role can
-                access this page.
+                Welcome back, {user?.username}!
               </p>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Wallet Balance
+                  </CardTitle>
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {user?.walletBalance?.toFixed(2)} ETB
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Transactions
+                  </CardTitle>
+                  <Receipt className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalTransactions}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {totalAmount.toFixed(2)} ETB processed
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Transaction Form and History */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {/* Transaction Form */}
+              <PaymentForm />
+
+              {/* Transaction History */}
+              <TransactionHistory userEmail={user?.email} />
+            </div>
+            
+          </div>
         </div>
       </div>
     </RoleGuard>

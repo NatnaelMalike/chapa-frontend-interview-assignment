@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
+
   const { email, password, rememberMe } = await request.json();
   const user = users.find(
     (user) => user.email === email && user.password === password
@@ -14,8 +15,10 @@ export async function POST(request: Request) {
       { status: 401 }
     );
   }
-  // Set HTTP-only cookie
-  (await cookies()).set("auth", JSON.stringify(user), {
+
+  // Store the user's ID in the cookie.
+  const cookieStore = await cookies();
+  cookieStore.set("auth", user.id.toString(), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
@@ -23,5 +26,12 @@ export async function POST(request: Request) {
     path: "/",
   });
 
-  return NextResponse.json(user);
+  // 2. Create a new user object without the password field
+  //    before sending the response. This prevents the password from
+  //    ever being exposed to the client.
+  const { password: _, ...userWithoutPassword } = user;
+
+  // 3. Return the sanitized user object
+  return NextResponse.json(userWithoutPassword);
+  // --- END REFACTORED CODE ---
 }

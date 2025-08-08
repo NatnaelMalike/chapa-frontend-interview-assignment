@@ -17,7 +17,7 @@ export const testCredentials = [
     id: "superadmin",
     label: "Super Admin",
     email: "kebede.s@superadmin.com",
-    password: "superadmin",
+    password: "k@superadmin",
     role: "superadmin"
   }
 ];

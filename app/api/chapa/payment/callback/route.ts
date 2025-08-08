@@ -17,9 +17,7 @@ export async function GET(req: NextRequest) {
 
   const verifyData = await verifyRes.json();
 
-  if (verifyData.status === 'success') {
-    // Update DB, mark order as paid
-    
+  if (verifyData.status === 'success') {    
     return NextResponse.json({ message: 'Payment verified and processed' }, { status: 200 });
   }
 

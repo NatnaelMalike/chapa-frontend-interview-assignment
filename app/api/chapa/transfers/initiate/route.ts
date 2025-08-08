@@ -1,4 +1,3 @@
-// app/api/initiate-transfer/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
 

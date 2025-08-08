@@ -40,8 +40,8 @@ export function PaymentForm() {
 
   async function onSubmit(data: PaymentFormData) {
     const callbackUrl =
-    process.env.CALLBACK_URL || "https://your-callback-url.com";
-    const returnUrl = process.env.RETURN_URL || "https://your-return-url.com";
+    process.env.CALLBACK_URL || "https://chapa-frontend-mk.vercel.app/api/chapa/callback";
+    const returnUrl = process.env.RETURN_URL || "https://chapa-frontend-mk.vercel.app/thank-you";
 
     const paymentData = {
       ...data,

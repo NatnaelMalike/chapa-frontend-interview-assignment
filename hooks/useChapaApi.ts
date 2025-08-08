@@ -17,7 +17,3 @@ export const useInitiateTransfer = () => {
   return useAsyncApi<any, [InitiateTransferRequest]>(chapaService.initiateTransfer);
 };
 
-// Hook for verifying a payment
-export const useVerifyPayment = () => {
-  return useAsyncApi<any, [string]>(chapaService.verifyPayment);
-};

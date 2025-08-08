@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { loginSchema } from "@/schemas/login-schema";
+import { LoginFormData, loginSchema } from "@/schemas/login-schema";
 import { useState } from "react";
 import { EyeIcon, EyeOffIcon, Users } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
@@ -49,26 +49,26 @@ export function LoginForm() {
     setVisible(!isVisible);
   };
 
-  const useTestCredentials = async (credentialId: string) => {
+  const fillTestCredentials = (credentialId: string) => {
     const credential = testCredentials.find((cred) => cred.id === credentialId);
     if (!credential) return;
-
+  
     setIsAnimating(true);
-
+  
     setTimeout(() => {
       form.setValue("email", credential.email, { shouldValidate: true });
     }, 100);
-
+  
     setTimeout(() => {
       form.setValue("password", credential.password, { shouldValidate: true });
     }, 300);
-
+  
     setTimeout(() => {
       setIsAnimating(false);
     }, 500);
   };
 
-  async function onSubmit(data: z.infer<typeof loginSchema>) {
+  async function onSubmit(data: LoginFormData) {
     const user = await login(data.email, data.password, data.rememberMe);
     if (user) {
       const role = user.role;
@@ -133,7 +133,7 @@ export function LoginForm() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => selectedCredential && useTestCredentials(selectedCredential)}
+              onClick={() => selectedCredential && fillTestCredentials(selectedCredential)}
               disabled={!selectedCredential || isAnimating}
               className="h-9 px-4 rounded-lg border-primary/20 hover:bg-primary/5 transition-all duration-200"
             >

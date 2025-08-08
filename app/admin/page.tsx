@@ -76,7 +76,7 @@ export default function AdminDashboard() {
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         {/* User Management */}
-        <Card>
+        <Card className="max-h-[450px] overflow-y-auto">
           <CardHeader>
             <CardTitle>User Management</CardTitle>
             <CardDescription>Manage user accounts and permissions</CardDescription>
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Supported Banks */}
-        <Card>
+        <Card className="max-h-[450px] overflow-y-auto">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Supported Banks</CardTitle>

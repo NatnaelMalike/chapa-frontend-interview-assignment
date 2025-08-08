@@ -6,4 +6,4 @@ export const loginSchema = z.object({
   rememberMe: z.boolean(),
 });
 
-export type SignInFormData = z.infer<typeof loginSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>;

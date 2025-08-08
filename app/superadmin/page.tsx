@@ -19,6 +19,7 @@ import {
   User,
   Shield,
   Crown,
+  HandCoins,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/dashboard-sidebar";
@@ -119,9 +120,9 @@ export default function SuperAdminDashboard() {
                   icon={Building2}
                 />
               </div>
-              <div className="grid gap-6 lg:grid-cols-2">
+              <div className="grid gap-6 lg:grid-cols-2 ">
                 {/* User Management */}
-                <Card>
+                <Card className="max-h-[450px] overflow-y-auto">
                   <CardHeader>
                     <CardTitle>User Management</CardTitle>
                     <CardDescription>
@@ -165,7 +166,7 @@ export default function SuperAdminDashboard() {
                 </Card>
 
                 {/* Supported Banks */}
-                <Card>
+                <Card className="max-h-[450px] overflow-y-auto">
                   <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                       <CardTitle>Supported Banks</CardTitle>
@@ -326,7 +327,20 @@ export default function SuperAdminDashboard() {
                   </CardContent>
                 </Card>
               </div>
-              <TransferForm banks={banks}/>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <HandCoins className="h-5 w-5" />
+                    Transfer 
+                  </CardTitle>
+                  <CardDescription>
+                    Send Funds to Bank Accounts
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <TransferForm banks={banks} />
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

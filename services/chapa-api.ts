@@ -54,11 +54,6 @@ export const chapaService = {
         return response.data;
     },
 
-    // Verify payment (if needed)
-    verifyPayment: async (txRef: string) => {
-        const response = await chapaApi.get(`/payment/verify/${txRef}`);
-        return response.data;
-    },
 };
 
 // Helper function to generate transaction reference

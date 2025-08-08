@@ -1,13 +1,13 @@
-import { mockUsers } from "@/data/users";
+import { users } from "@/data/users";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   const { email, password, rememberMe } = await request.json();
-  const user = mockUsers.find(
+  const user = users.find(
     (user) => user.email === email && user.password === password
   );
-  
+
   if (!user) {
     return NextResponse.json(
       { message: "Invalid credentials" },

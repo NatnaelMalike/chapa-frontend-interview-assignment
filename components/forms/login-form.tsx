@@ -14,21 +14,21 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox"; // Import Checkbox component
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { loginSchema } from "@/schemas/login-schema";
 import { useState } from "react";
-import { EyeIcon, EyeOffIcon } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
-import { useAuth } from "@/hooks/use-auth";
+import { EyeIcon, EyeOffIcon, Users } from "lucide-react";
+import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { useAuthStore } from "@/store/auth-store";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { testCredentials } from "@/data/users";
 
 export function LoginForm() {
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -36,37 +36,118 @@ export function LoginForm() {
     defaultValues: {
       email: "",
       password: "",
-      rememberMe: false, // Default value for rememberMe
+      rememberMe: false,
     },
   });
-  const { login, isLoading, error } = useAuth();
+  const { login, loading, error } = useAuthStore();
   const router = useRouter();
-  const [isvisible, setVisible] = useState(false);
+  const [isVisible, setVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [selectedCredential, setSelectedCredential] = useState("");
+
   const togglePasswordVisibility = () => {
-    setVisible(!isvisible);
+    setVisible(!isVisible);
   };
 
-  async function  onSubmit(data: z.infer<typeof loginSchema>) {
+  const useTestCredentials = async (credentialId: string) => {
+    const credential = testCredentials.find((cred) => cred.id === credentialId);
+    if (!credential) return;
+
+    setIsAnimating(true);
+
+    setTimeout(() => {
+      form.setValue("email", credential.email, { shouldValidate: true });
+    }, 100);
+
+    setTimeout(() => {
+      form.setValue("password", credential.password, { shouldValidate: true });
+    }, 300);
+
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 500);
+  };
+
+  async function onSubmit(data: z.infer<typeof loginSchema>) {
     const user = await login(data.email, data.password, data.rememberMe);
-    if (user) { // Check if a user object was returned
+    if (user) {
       const role = user.role;
-      if (role === "admin") router.push("/admin-dashboard");
-      else if (role === "super-admin") router.push("/super-admin");
-      else router.push("/dashboard");
+      if (role === "admin") router.replace("/admin");
+      else if (role === "superadmin") router.replace("/superadmin");
+      else router.replace("/dashboard");
     }
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold text-center">
-          Sign In
-        </CardTitle>
-        <CardDescription className="text-center">
-          Enter your credentials to access your account
-        </CardDescription>
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-2 sm:p-6 lg:p-8">
+  <div className="w-full max-w-md">
+    {/* Header */}
+    <div className="text-center">
+      <div className="mb-4 mt-8 sm:mt-6 inline-block">
+        <Image
+          src="/chapa_gradient.png"
+          alt="Chapa Logo"
+          width={210}
+          height={70}
+          className="mx-auto"
+          priority
+        />
+      </div>
+      <h1 className="mb-2  text-xl sm:text-2xl font-bold text-foreground">Welcome to Chapa</h1>
+      <p className="leading-relaxed text-muted-foreground">
+        <i>Seamless Payments, Endless Opportunities!</i>
+      </p>
+    </div>
+
+    {/* Login Card */}
+    <Card className="bg-transparent shadow-sm border-0 border-b mt-6">
+      <CardHeader className="space-y-6 pb-6">
+       
+        {/* Test Credentials Selector */}
+        <div className="space-y-3">
+          <label className="flex items-center text-sm font-medium text-card-foreground">
+            <Users className="mr-2 h-4 w-4" />
+            Quick Test Login
+          </label>
+          <div className="flex gap-2">
+            <Select
+              value={selectedCredential}
+              onValueChange={setSelectedCredential}
+            >
+              <SelectTrigger className="flex-1 h-11 rounded-lg border-border focus:border-primary focus:ring-primary/20 transition-all duration-200">
+                <SelectValue placeholder="Choose test user..." />
+              </SelectTrigger>
+              <SelectContent>
+                {testCredentials.map((cred) => (
+                  <SelectItem key={cred.id} value={cred.id}>
+                    <div className="flex items-center">
+                      <span className="font-medium">{cred.label}</span>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({cred.role})
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => selectedCredential && useTestCredentials(selectedCredential)}
+              disabled={!selectedCredential || isAnimating}
+              className="h-9 px-4 rounded-lg border-primary/20 hover:bg-primary/5 transition-all duration-200"
+            >
+              {isAnimating ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+              ) : (
+                "Fill"
+              )}
+            </Button>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+
+      <CardContent className="space-y-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -74,37 +155,46 @@ export function LoginForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-base font-medium text-card-foreground">
+                    Email Address
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="nanaelmalike@gmail.com" {...field} />
+                    <Input
+                      placeholder="Enter your email"
+                      className="h-12 rounded-lg border-border text-base focus:border-primary focus:ring-primary/20 transition-all duration-200"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel>Password</FormLabel>
+                <FormItem>
+                  <FormLabel className="text-base font-medium text-card-foreground">
+                    Password
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
-                        type={isvisible ? "text" : "password"}
+                        type={isVisible ? "text" : "password"}
                         placeholder="Enter your password"
-                        className="pl-3 pr-10 py-6 rounded-md bg-background/50 border-muted transition-all duration-200 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                        className="h-12 rounded-lg border-border pr-12 text-base focus:border-primary focus:ring-primary/20 transition-all duration-200"
                         {...field}
                       />
                       <button
                         type="button"
                         onClick={togglePasswordVisibility}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 transform text-muted-foreground transition-colors hover:text-card-foreground"
                       >
-                        {isvisible ? (
-                          <EyeOffIcon className="w-4 h-4 text-muted-foreground" />
+                        {isVisible ? (
+                          <EyeIcon className="h-5 w-5" />
                         ) : (
-                          <EyeIcon className="w-4 h-4 text-muted-foreground" />
+                          <EyeOffIcon className="h-5 w-5" />
                         )}
                       </button>
                     </div>
@@ -113,34 +203,33 @@ export function LoginForm() {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="rememberMe"
-              render={({ field }) => (
-                <FormItem className="flex items-center space-x-2">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormLabel className="text-sm font-medium">
-                    Remember Me
-                  </FormLabel>
-                </FormItem>
+
+            <Button
+              type="submit"
+              className="h-12 w-full rounded-lg bg-primary text-base font-medium text-primary-foreground shadow-lg transition-all duration-200 hover:bg-primary/90 hover:shadow-xl"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
+                </div>
+              ) : (
+                "Sign In"
               )}
-            />
-            <div className="flex flex-col space-y-4">
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing In..." : "Sign In"}
-              </Button>
-            </div>
+            </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="text-center">
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+
+      <CardFooter className="flex flex-col space-y-4 pt-6">
+        {error && (
+          <div className="w-full rounded-lg border border-destructive/20 bg-destructive/10 p-3">
+            <p className="text-center text-sm text-destructive">{error}</p>
+          </div>
+        )}
       </CardFooter>
     </Card>
+  </div>
+</div>
   );
 }

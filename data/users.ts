@@ -1,3 +1,27 @@
+export const testCredentials = [
+  {
+    id: "user",
+    label: "Regular User",
+    email: "gelila.y@email.com",
+    password: "g@user",
+    role: "user"
+  },
+  {
+    id: "admin",
+    label: "Admin User",
+    email: "samrawit.a@admin.com",
+    password: "s@admin",
+    role: "admin"
+  },
+  {
+    id: "superadmin",
+    label: "Super Admin",
+    email: "kebede.s@superadmin.com",
+    password: "superadmin",
+    role: "superadmin"
+  }
+];
+
 export const users: User[] = [
   // Sample users
   {
